@@ -147,11 +147,16 @@ svg{display:block;flex:none}
   text-shadow:0 0 1rem #9e1509;font:700 clamp(.89rem,1.65vw,1.23rem)/1.1 var(--condensed);
   letter-spacing:.12em;text-transform:uppercase;text-wrap:balance;
 }
-.hero-image-slot{position:relative;grid-row:1;grid-column:2;align-self:stretch;display:grid;place-items:center;min-width:0;margin:.55rem 1.3rem 2.3rem -1.8rem}
-.artwork-figure{margin:0;display:grid;place-items:center;overflow:hidden;min-width:0}
-.artwork-figure img{width:100%;height:100%;object-fit:contain}
-.hero-image-slot .artwork-figure{width:100%;height:100%;min-height:0;position:absolute;inset:0}
-.hero-image-slot .artwork-figure img{object-position:center;max-height:100%;width:100%;height:100%;object-fit:contain;transform:scale(var(--cover-zoom,1))}
+.hero-image-slot{
+  --artwork-size:clamp(16rem,37vw,28.5rem);
+  grid-area:1 / 2;min-width:0;padding:1.25rem 1.4rem 4.25rem;
+}
+.artwork-figure{display:flex;align-items:center;justify-content:center;min-width:0;margin:0}
+.artwork-figure img{
+  --artwork-extent:calc(var(--artwork-size) * var(--artwork-scale,1));
+  width:min(100%,var(--artwork-extent));height:auto;max-height:var(--artwork-extent);
+  object-fit:contain;
+}
 .hero-image-slot .original-artwork{mix-blend-mode:screen}
 .cover-poster-button{position:absolute;z-index:4;right:1rem;bottom:1rem;background:#0b0505ed;letter-spacing:.04em}
 
@@ -235,11 +240,6 @@ svg{display:block;flex:none}
   .site-main{padding-top:1.05rem}
   .hero{min-height:25rem}
   .hero-copy{width:calc(100% - 2.2rem);padding-left:.5rem}
-  .hero-image-slot{margin-left:-.9rem}
-  .hero-image-slot .artwork-figure img{
-    object-position:center top;transform-origin:center top;
-    transform:none;transform:scale(min(var(--cover-zoom,1),1));
-  }
   .portal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .toast{bottom:calc(4rem + env(safe-area-inset-bottom))}
 }
@@ -260,8 +260,8 @@ svg{display:block;flex:none}
   .hero-wordmark{grid-row:1;width:min(94%,26rem)}
   .hero-name{grid-row:3;margin:0 0 .25rem;font-size:1.31rem}
   .hero-image-slot{
-    grid-row:2;grid-column:1;width:min(91%,24rem);height:clamp(10.6rem,58vw,18.5rem);
-    margin:-.4rem 0 .9rem;
+    --artwork-size:clamp(12rem,64vw,19.5rem);
+    grid-area:2 / 1;width:100%;padding:.25rem .5rem 1rem;
   }
   .hero-motto{grid-row:4;width:min(89%,24rem);margin:-.2rem auto 0}
   .hero-roles{grid-row:5;margin:.38rem 0 .68rem;text-align:center;font-size:.9rem;letter-spacing:.082em}
@@ -648,54 +648,40 @@ svg{display:block;flex:none}
   line-height: 1.55;
 }
 
-.view-favourites .view-definitions {
-  position: relative;
-  z-index: 1;
-  max-width: 26rem;
+.view-favourites,
+.view-contact-card,
+.view-project-card {
+  container-type: inline-size;
+}
+
+.view-illustrated-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
 }
 
 .view-art {
-  position: absolute;
-  z-index: -1;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  pointer-events: none;
+  --artwork-size: clamp(10rem, 54cqi, 13rem);
 }
 
-.view-art-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.view-art.original-artwork {
+  mix-blend-mode: screen;
 }
 
-.view-about-art {
-  inset: auto -1.25rem -1.6rem auto;
-  width: clamp(8.5rem, 48%, 18rem);
-  height: 93%;
-  max-height: 21rem;
-  opacity: .7;
-  mask-image: linear-gradient(90deg, transparent 0%, #000 27%, #000 96%);
+.view-project-card .view-art.original-artwork img {
+  filter: brightness(1.6);
 }
 
-.view-contact-art {
-  inset: auto 0 0 auto;
-  width: 58%;
-  height: 100%;
-  opacity: .62;
-  mask-image: linear-gradient(90deg, transparent, #000 82%);
-}
+@container (min-width: 21rem) {
+  .view-illustrated-body {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
 
-.view-project-art {
-  inset: auto -.6rem -.65rem auto;
-  width: 64%;
-  height: 105%;
-  opacity: .65;
-  mask-image: linear-gradient(90deg, transparent, #000 70%);
-}
-
-.view-project-art:has(.original-artwork) {
-  opacity: .38;
+  .view-art {
+    --artwork-size: min(55cqi, 18rem);
+    grid-area: 1 / 2;
+  }
 }
 
 .view-search {
@@ -1506,17 +1492,20 @@ svg{display:block;flex:none}
 }
 
 .vault-artwork-preview {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
+  --artwork-size: 13rem;
+  min-width: 0;
   margin: 0;
   border: 3px double #74552e;
   border-radius: 0.12rem;
   background: radial-gradient(ellipse at center, #24080a, #090809 72%);
 }
 
-.vault-artwork-preview img {
+.vault-artwork-preview.artwork-figure {
+  min-height: var(--artwork-size);
+  padding: .75rem;
+}
+
+.vault-poster-preview img {
   display: block;
   width: 100%;
   height: 100%;
@@ -1525,6 +1514,9 @@ svg{display:block;flex:none}
 }
 
 .vault-poster-preview {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
   aspect-ratio: 1122 / 1402;
   width: min(100%, 17rem, 40dvh);
   justify-self: center;
@@ -1962,7 +1954,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <canvas class="ignite-canvas" id="ignite-canvas" aria-hidden="true" hidden=""></canvas>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f31e109899ed18',t:'MTc5NTQ2Nzc3Mw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f31e109899ed18',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+
 
 <script>(() => {
   'use strict';
@@ -2761,16 +2753,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     return list;
   }
 
-  function artwork(slot, className) {
-    const wrap = element("div", `view-art ${className}`);
-    const image = window.LoreApp.artwork(slot, "view-art-image");
-    if (image instanceof Node) {
-      wrap.append(image);
-    } else if (typeof image === "string") {
-      wrap.innerHTML = image;
-    }
-    wrap.setAttribute("aria-hidden", "true");
-    return wrap;
+  function illustratedBody(slot, content) {
+    const body = element("div", "view-illustrated-body");
+    const figure = window.LoreApp.artwork(slot, "view-art");
+    figure.setAttribute("aria-hidden", "true");
+    body.append(figure, content);
+    return body;
   }
 
   function vaultButton(label, tab, interestKey) {
@@ -2918,8 +2906,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     sports.append(vaultButton("Edit sports", "sports"));
 
     const favouriteCard = card("about-favourites", "Favourites", "heart", "view-favourites");
-    favouriteCard.append(definitionList(favourites));
-    favouriteCard.append(artwork("about", "view-about-art"));
+    favouriteCard.append(illustratedBody("about", definitionList(favourites)));
 
     grid.append(traits, sports, favouriteCard, interestCard(state.interests));
     content.append(grid);
@@ -3027,7 +3014,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
   function projectCard({ projects, otherProjects, links }) {
     const node = card("contacts-projects", "Projects", "projects", "view-project-card");
-    node.append(artwork("raven", "view-project-art"));
+    const details = element("div");
     if (projects.length) {
       const list = element("ul", "view-project-list");
       for (const project of projects) {
@@ -3039,13 +3026,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         row.append(trigger);
         list.append(row);
       }
-      node.append(list);
+      details.append(list);
     }
     if (otherProjects.length) {
-      node.append(element("h3", "view-project-status", "Other projects"), pillList(otherProjects));
+      details.append(element("h3", "view-project-status", "Other projects"), pillList(otherProjects));
     }
-    if (!projects.length && !otherProjects.length) node.append(element("p", "view-empty", "No projects listed."));
-    node.append(vaultButton("Edit projects", "projects"));
+    if (!projects.length && !otherProjects.length) details.append(element("p", "view-empty", "No projects listed."));
+    details.append(vaultButton("Edit projects", "projects"));
+    node.append(illustratedBody("raven", details));
     return node;
   }
 
@@ -3058,7 +3046,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     const featured = state.links.filter((entry) => entry.type === "custom" || entry.url);
 
     const contactCard = card("contacts-contacts", "Contacts", "mail", "view-contact-card");
-    contactCard.append(artwork("feather", "view-contact-art"), linkList(contacts));
+    contactCard.append(illustratedBody("feather", linkList(contacts)));
 
     const platformCard = card("contacts-platforms", "Platforms", "gamepad", "view-platform-card");
     platformCard.append(linkList(platforms, "view-platform-list"));
@@ -4000,12 +3988,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         const image = normalizeUrl(current.src) || originalImage;
         if (preview.getAttribute('src') !== image) preview.src = image;
         if (!poster) {
-          preview.style.transform = `scale(${Number(current.zoom) / 100})`;
+          preview.style.setProperty('--artwork-scale', String(current.zoom / 100));
           preview.style.opacity = String(Number(current.opacity) / 100);
         }
       }
       preview.addEventListener('error', () => {
         if (preview.getAttribute('src') === originalImage) return;
+        preview.style.removeProperty('--artwork-scale');
+        preview.style.opacity = '';
         preview.src = originalImage;
         message.textContent = 'Anteprima non disponibile. Controlla il file o l’URL.';
       });
@@ -4071,7 +4061,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         holder.querySelector('button')?.focus();
       }), message);
       holder.replaceChildren(
-        make('figure', { class: poster ? 'vault-artwork-preview vault-poster-preview' : 'vault-artwork-preview' }, preview),
+        make('figure', { class: poster ? 'vault-artwork-preview vault-poster-preview' : 'vault-artwork-preview artwork-figure' }, preview),
         controls
       );
       setPreview();
@@ -4396,10 +4386,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
   const data = window.LoreData;
   const artworkDefaults = {
-    cover: './assets/cover-emblem.webp',
-    about: './assets/poster-art-raven.webp',
-    feather: './assets/poster-art-feather.webp',
-    raven: './assets/poster-art-projects.webp'
+    cover: { file: './assets/cover-emblem.webp', width: 622, height: 649 },
+    about: { file: './assets/poster-art-raven.webp', width: 393, height: 546 },
+    feather: { file: './assets/poster-art-feather.webp', width: 378, height: 514 },
+    raven: { file: './assets/poster-art-projects.webp', width: 541, height: 645 }
   };
   const artworkBackups = {
     cover: './assets/art-emblem.svg',
@@ -4581,25 +4571,25 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
   function artwork(slot, className = '') {
     const custom = state.artwork[slot];
-    const fallback = data.assetUrl(artworkDefaults[slot]);
+    const { file, width, height } = artworkDefaults[slot];
+    const fallback = data.assetUrl(file);
     const figure = document.createElement('figure');
     figure.className = 'artwork-figure ' + className;
     if (!custom.src) figure.classList.add('original-artwork');
 
     const graphic = document.createElement('img');
     graphic.alt = '';
+    graphic.width = width;
+    graphic.height = height;
     graphic.decoding = 'async';
     graphic.loading = slot === 'cover' ? 'eager' : 'lazy';
     graphic.referrerPolicy = 'no-referrer';
-    const zoom = custom.zoom / 100;
-    if (slot === 'cover') graphic.style.setProperty('--cover-zoom', String(zoom));
-    else graphic.style.transform = 'scale(' + zoom + ')';
+    graphic.style.setProperty('--artwork-scale', String(custom.zoom / 100));
     graphic.style.opacity = custom.opacity / 100;
     graphic.addEventListener('error', () => {
       const current = graphic.getAttribute('src');
       if (current === custom.src) {
-        graphic.style.removeProperty('--cover-zoom');
-        graphic.style.transform = '';
+        graphic.style.removeProperty('--artwork-scale');
         graphic.style.opacity = '';
         figure.classList.add('original-artwork');
         graphic.src = fallback;
